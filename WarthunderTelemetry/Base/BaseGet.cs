@@ -1,11 +1,22 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace WarthunderTelemetry
+namespace WarthunderTelemetry.Base
 {
-    public static class Get
+    public static class BaseGet
     {
-        private static readonly HttpClient hc = new HttpClient();
+        private static readonly HttpClient hc = new HttpClient
+        {
+            DefaultRequestHeaders =
+            {
+                CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
+                {
+                    NoCache = true, // 禁用缓存
+                    NoStore = true  // 不存储缓存
+                }
+            }
+        };
         private static Task<string> GetAsync(string url)
         {
             try
@@ -17,7 +28,6 @@ namespace WarthunderTelemetry
                 return Task.FromResult("");
             }
         }
-
         private static Task<byte[]> GetByteAsync(string url)
         {
             try
@@ -39,5 +49,4 @@ namespace WarthunderTelemetry
         public static Task<string> GetMapInfo() => GetAsync($"http://localhost:8111/map_info.json");
         public static Task<string> GetMapObjInfo() => GetAsync($"http://localhost:8111/map_obj.json");
     }
-
 }

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战场地图</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border: 5px solid white;
+            border-radius: 10px;
+            position: absolute; /* 确保图片绝对定位 */
+            transition: opacity 0.2s ease-in-out; /* 200ms 渐变 */
+        }
+        .hidden {
+            opacity: 0;
+        }
+        #error-message {
+            color: red;
+            display: none;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img id="mapImage1" src="data.png" alt="战场地图">
+        <img id="mapImage2" class="hidden" src="data.png" alt="战场地图">
+        <p id="error-message">❌ 图片加载失败，正在重试...</p>
+    </div>
+
+    <script>
+        let currentImage = 1; // 当前显示的图片 (1 or 2)
+
+        function updateImage() {
+            let newImage = new Image();
+            let errorMessage = document.getElementById("error-message");
+
+            newImage.onload = function () {
+                let img1 = document.getElementById("mapImage1");
+                let img2 = document.getElementById("mapImage2");
+
+                let activeImage = currentImage === 1 ? img1 : img2;
+                let hiddenImage = currentImage === 1 ? img2 : img1;
+
+                // 确保图片已经加载完成后才更新 src
+                hiddenImage.src = newImage.src;  
+                hiddenImage.classList.remove("hidden"); 
+                activeImage.classList.add("hidden"); 
+
+                // 切换当前图片索引
+                currentImage = currentImage === 1 ? 2 : 1;
+                errorMessage.style.display = "none"; // 隐藏错误信息
+            };
+
+            newImage.onerror = function () {
+                errorMessage.style.display = "block"; // 显示错误信息
+                console.log("图片加载失败，稍后重试...");
+            };
+
+            // 预加载新图片
+            newImage.src = "data.png?t=" + new Date().getTime();
+        }
+
+        setInterval(updateImage, 100); // 每 100ms 检查新图片
+    </script>
+</body>
+</html>

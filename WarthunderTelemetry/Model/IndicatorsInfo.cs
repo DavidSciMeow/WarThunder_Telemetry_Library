@@ -1,122 +1,93 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
+using System.Xml.Schema;
 
-namespace WarthunderTelemetry
+namespace WarthunderTelemetry.Model
 {
     public class IndicatorsInfo
     {
-        private Type[] ExtractDynamicArray<Type>(JObject data, string prefix) where Type : struct 
+        public IndicatorsInfo(JObject jo)
         {
-            int maxIndex = data.Properties()
-                                .Where(p => p.Name.StartsWith(prefix))
-                                .Select(p => int.TryParse(p.Name.Replace(p.Name, ""), out int number) ? number : 0)
-                                .DefaultIfEmpty(0)
-                                .Max();
-            
-            Type[] result = new Type[maxIndex];
-
-            for (int i = 1; i <= maxIndex; i++)
+            Valid = jo[nameof(Valid).ToLowerInvariant()]?.ToString() == "true";
+            Army = jo[nameof(Army).ToLowerInvariant()]?.ToString() ?? "";
+            Type = jo[nameof(Type).ToLowerInvariant()]?.ToString() ?? "";
+            if (Army == "air")
             {
-                string key = $"{prefix}{i}";
-                result[i - 1] = data[key]?.Value<Type>() ?? default;
+                Speed = jo[nameof(Speed).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Stick_Elevator = jo[nameof(Stick_Elevator).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Stick_Ailerons = jo[nameof(Stick_Ailerons).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Vario = jo[nameof(Vario).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                AltitudeHour = jo[nameof(AltitudeHour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                AltitudeMin = jo[nameof(AltitudeMin).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Altitude10k = jo[nameof(Altitude10k).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Aviahorizon_Roll = jo[nameof(Aviahorizon_Roll).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Aviahorizon_Pitch = jo[nameof(Aviahorizon_Pitch).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Compass = jo[nameof(Compass).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Clock_Hour = jo[nameof(Clock_Hour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Clock_Min = jo[nameof(Clock_Min).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Clock_Sec = jo[nameof(Clock_Sec).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Rpm_Min = jo[nameof(Rpm_Min).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Rpm_Hour = jo[nameof(Rpm_Hour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Oil_Pressure = jo[nameof(Oil_Pressure).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Water_Temperature = jo[nameof(Water_Temperature).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Fuel = jo[nameof(Fuel).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Fuel_Consume = jo[nameof(Fuel_Consume).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Airbrake_Lever = jo[nameof(Airbrake_Lever).ToLowerInvariant()]?.Value<float>() == 1;
+                Gears = jo[nameof(Gears).ToLowerInvariant()]?.Value<float>() == 1;
+                Flaps = jo[nameof(Flaps).ToLowerInvariant()]?.Value<float>() == 1;
+                Throttle = jo[nameof(Throttle).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Mach = jo[nameof(Mach).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                G_Meter = jo[nameof(G_Meter).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+                Aoa = jo[nameof(Aoa).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
+
+                // 解析数组数据
+                Pedals = jo.ExtractDynamicArray<float>("pedals");
+                Blisters = jo.ExtractDynamicArray<int>("blister");
+                GearLamps = jo.ExtractDynamicArray<int>("gear_lamp");
             }
-            return result;
-        }
-
-        public IndicatorsInfo()
-        {
-            try
+            else if (Army == "tank")
             {
-                var j = Get.GetIndicators().GetAwaiter().GetResult();
-                if (!string.IsNullOrWhiteSpace(j))
-                {
-                    var jo = JObject.Parse(j);
-                    Valid = jo[nameof(Valid).ToLowerInvariant()]?.ToString() == "true";
-                    Army = jo[nameof(Army).ToLowerInvariant()]?.ToString() ?? "";
-                    Type = jo[nameof(Type).ToLowerInvariant()]?.ToString() ?? "";
-                    if (Army == "air")
-                    {
-                        Speed = jo[nameof(Speed).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Stick_Elevator = jo[nameof(Stick_Elevator).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Stick_Ailerons = jo[nameof(Stick_Ailerons).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Vario = jo[nameof(Vario).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        AltitudeHour = jo[nameof(AltitudeHour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        AltitudeMin = jo[nameof(AltitudeMin).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Altitude10k = jo[nameof(Altitude10k).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Aviahorizon_Roll = jo[nameof(Aviahorizon_Roll).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Aviahorizon_Pitch = jo[nameof(Aviahorizon_Pitch).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Compass = jo[nameof(Compass).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Clock_Hour = jo[nameof(Clock_Hour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Clock_Min = jo[nameof(Clock_Min).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Clock_Sec = jo[nameof(Clock_Sec).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Rpm_Min = jo[nameof(Rpm_Min).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Rpm_Hour = jo[nameof(Rpm_Hour).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Oil_Pressure = jo[nameof(Oil_Pressure).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Water_Temperature = jo[nameof(Water_Temperature).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Fuel = jo[nameof(Fuel).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Fuel_Consume = jo[nameof(Fuel_Consume).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Airbrake_Lever = jo[nameof(Airbrake_Lever).ToLowerInvariant()]?.Value<float>() == 1;
-                        Gears = jo[nameof(Gears).ToLowerInvariant()]?.Value<float>() == 1;
-                        Flaps = jo[nameof(Flaps).ToLowerInvariant()]?.Value<float>() == 1;
-                        Throttle = jo[nameof(Throttle).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Mach = jo[nameof(Mach).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        G_Meter = jo[nameof(G_Meter).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-                        Aoa = jo[nameof(Aoa).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
-
-                        // 解析数组数据
-                        Pedals = ExtractDynamicArray<float>(jo, "pedals");
-                        Blisters = ExtractDynamicArray<int>(jo, "blister");
-                        GearLamps = ExtractDynamicArray<int>(jo, "gear_lamp");
-                    }
-                    else if (Army == "tank")
-                    {
-                        Breech_damaged = float.Parse(jo[nameof(Breech_damaged).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Barrel_dead = float.Parse(jo[nameof(Barrel_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Engine_broken = float.Parse(jo[nameof(Engine_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Engine_dead = float.Parse(jo[nameof(Engine_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        V_drive_broken = float.Parse(jo[nameof(V_drive_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        H_drive_dead = float.Parse(jo[nameof(H_drive_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Is_repairing_auto = float.Parse(jo[nameof(Is_repairing_auto).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Transmission_broken = float.Parse(jo[nameof(Transmission_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Track_broken = float.Parse(jo[nameof(Track_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Stabilizer = float.Parse(jo[nameof(Stabilizer).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Gear = int.Parse(jo[nameof(Gear).ToLowerInvariant()]?.ToString() ?? "0");
-                        Gear_neutral = int.Parse(jo[nameof(Gear_neutral).ToLowerInvariant()]?.ToString() ?? "0");
-                        Speed = float.Parse(jo[nameof(Speed).ToLowerInvariant()]?.ToString() ?? "0");
-                        Has_speed_warning = float.Parse(jo[nameof(Has_speed_warning).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Rpm = float.Parse(jo[nameof(Rpm).ToLowerInvariant()]?.ToString() ?? "0");
-                        Driving_direction_mode = float.Parse(jo[nameof(Driving_direction_mode).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        Cruise_control = int.Parse(jo[nameof(Cruise_control).ToLowerInvariant()]?.ToString() ?? "0");
-                        Lws = int.Parse(jo[nameof(Lws).ToLowerInvariant()]?.ToString() ?? "0");
-                        Ircm = int.Parse(jo[nameof(Ircm).ToLowerInvariant()]?.ToString() ?? "0");
-                        Roll_indicators_is_available = float.Parse(jo[nameof(Roll_indicators_is_available).ToLowerInvariant()]?.ToString() ?? "0") == 1;
-                        First_stage_ammo = int.Parse(jo[nameof(First_stage_ammo).ToLowerInvariant()]?.ToString() ?? "0");
-                        Crew_total = int.Parse(jo[nameof(Crew_total).ToLowerInvariant()]?.ToString() ?? "0");
-                        Crew_current = int.Parse(jo[nameof(Crew_current).ToLowerInvariant()]?.ToString() ?? "0");
-                        Crew_distance = int.Parse(jo[nameof(Crew_distance).ToLowerInvariant()]?.ToString() ?? "0");
-                        Gunner_state = int.Parse(jo[nameof(Gunner_state).ToLowerInvariant()]?.ToString() ?? "0");
-                        Driver_state = int.Parse(jo[nameof(Driver_state).ToLowerInvariant()]?.ToString() ?? "0");
-                    }
-                }
-            }
-            catch
-            {
-
+                Breech_damaged = float.Parse(jo[nameof(Breech_damaged).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Barrel_dead = float.Parse(jo[nameof(Barrel_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Engine_broken = float.Parse(jo[nameof(Engine_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Engine_dead = float.Parse(jo[nameof(Engine_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                V_drive_broken = float.Parse(jo[nameof(V_drive_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                H_drive_dead = float.Parse(jo[nameof(H_drive_dead).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Is_repairing_auto = float.Parse(jo[nameof(Is_repairing_auto).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Transmission_broken = float.Parse(jo[nameof(Transmission_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Track_broken = float.Parse(jo[nameof(Track_broken).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Stabilizer = float.Parse(jo[nameof(Stabilizer).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Gear = int.Parse(jo[nameof(Gear).ToLowerInvariant()]?.ToString() ?? "0");
+                Gear_neutral = int.Parse(jo[nameof(Gear_neutral).ToLowerInvariant()]?.ToString() ?? "0");
+                Speed = float.Parse(jo[nameof(Speed).ToLowerInvariant()]?.ToString() ?? "0");
+                Has_speed_warning = float.Parse(jo[nameof(Has_speed_warning).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Rpm = float.Parse(jo[nameof(Rpm).ToLowerInvariant()]?.ToString() ?? "0");
+                Driving_direction_mode = float.Parse(jo[nameof(Driving_direction_mode).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                Cruise_control = int.Parse(jo[nameof(Cruise_control).ToLowerInvariant()]?.ToString() ?? "0");
+                Lws = int.Parse(jo[nameof(Lws).ToLowerInvariant()]?.ToString() ?? "0");
+                Ircm = int.Parse(jo[nameof(Ircm).ToLowerInvariant()]?.ToString() ?? "0");
+                Roll_indicators_is_available = float.Parse(jo[nameof(Roll_indicators_is_available).ToLowerInvariant()]?.ToString() ?? "0") == 1;
+                First_stage_ammo = int.Parse(jo[nameof(First_stage_ammo).ToLowerInvariant()]?.ToString() ?? "0");
+                Crew_total = int.Parse(jo[nameof(Crew_total).ToLowerInvariant()]?.ToString() ?? "0");
+                Crew_current = int.Parse(jo[nameof(Crew_current).ToLowerInvariant()]?.ToString() ?? "0");
+                Crew_distance = double.Parse(jo[nameof(Crew_distance).ToLowerInvariant()]?.ToString() ?? "0");
+                Gunner_state = int.Parse(jo[nameof(Gunner_state).ToLowerInvariant()]?.ToString() ?? "0");
+                Driver_state = int.Parse(jo[nameof(Driver_state).ToLowerInvariant()]?.ToString() ?? "0");
             }
         }
-
         /// <summary>
         /// 是否有效
         /// </summary>
-        public bool Valid { get; private set; } = false;
+        public bool Valid { get; private set; }
         /// <summary>
         /// 类型
         /// </summary>
-        public string Army { get; private set; } = "";
+        public string Army { get; private set; }
         /// <summary>
         /// 载具具体类型
         /// </summary>
-        public string Type { get; private set; } = "";
+        public string Type { get; private set; }
 
         /// <summary>
         /// 是否自动修理
@@ -233,7 +204,7 @@ namespace WarthunderTelemetry
         /// <summary>
         /// 成员平均距离
         /// </summary>
-        public int Crew_distance { get; private set; }
+        public double Crew_distance { get; private set; }
         /// <summary>
         /// 炮手状态 2正在替换 1无人替换 0正常
         /// </summary>
@@ -345,34 +316,35 @@ namespace WarthunderTelemetry
         /// <summary> 
         /// 脚踏板数据（可能是方向舵控制）
         /// </summary>
-        public float[] Pedals { get; private set; } = new float[0];
+        public float[]? Pedals { get; private set; }
         /// <summary> 
         /// 机体罩（Blisters），可能用于显示舱盖或其他结构部件的状态 
         /// </summary>
-        public int[] Blisters { get; private set; } = new int[0];
+        public int[]? Blisters { get; private set; }
         /// <summary> 
         /// 起落架指示灯（0 = 关闭，1 = 亮）
         /// </summary>
-        public int[] GearLamps { get; private set; } = new int[0];
+        public int[]? GearLamps { get; private set; }
 
         public override string ToString()
         {
             if (Army.ToLowerInvariant() == "air")
             {
                 return $"空战模式 | {Type.Replace("_", " ").ToUpperInvariant()} | 飞机性能数据\n" +
-                    $"当前时间 {(int)Clock_Hour}:{Clock_Min}:{Clock_Sec}\n" +
-                    $"-------舵面-------\n" +
-                    $"自动配平 [{string.Join(",", Pedals)}]\n" +
-                    $"升降舵 [{Aviahorizon_Pitch:F3}] / {Stick_Elevator}\n" +
-                    $"副翼面 [{Aviahorizon_Roll:F3}] / {Stick_Ailerons}\n" +
-                    $"油门度 {Throttle*100}\n" +
-                    $"-------仪表-------\n" +
-                    $"磁航向: {Compass} | RPM: {Rpm} [{Rpm_Min}/{Rpm_Hour}]\n" +
-                    $"速度: {Speed:F3} (Mach:{Mach:F2}) | 迎角 {Aoa:F2}° \n" +
-                    $"垂直速率 {Vario} | G力: {G_Meter:F2}\n" +
-                    $"{(Airbrake_Lever?"减速板到位": "减速板收起")} | {(Gears ? "起落架到位" : "起落架收起")} | {(Flaps ? "襟翼到位" : "襟翼收起")} \n" +
-                    $"油量: ({Fuel:F3},{Fuel_Consume:F3}) | 水温:{Water_Temperature:F3} | \n" +
-                    $"舱盖: [{string.Join(",", Blisters)}]\n" +
+                    //$"当前时间 {(int)Clock_Hour}:{Clock_Min}:{Clock_Sec}\n" +
+                    //$"-------舵面-------\n" +
+                    //$"自动配平 [{string.Join(",", Pedals)}]\n" +
+                    //$"升降舵 [{Aviahorizon_Pitch:F3}] / {Stick_Elevator}\n" +
+                    //$"副翼面 [{Aviahorizon_Roll:F3}] / {Stick_Ailerons}\n" +
+                    //$"油门度 {Throttle*100}\n" +
+                    //$"-------仪表-------\n" +
+                    //$"磁航向: {Compass} \n" +
+                    //$"RPM: {Rpm} [{Rpm_Min}/{Rpm_Hour}]\n" +
+                    //$"速度: {Speed:F3} (Mach:{Mach:F2}) | 迎角 {Aoa:F2}° \n" +
+                    //$"垂直速率 {Vario} | G力: {G_Meter:F2}\n" +
+                    //$"{(Airbrake_Lever?"减速板到位": "减速板收起")} | {(Gears ? "起落架到位" : "起落架收起")} | {(Flaps ? "襟翼到位" : "襟翼收起")} \n" +
+                    //$"油量: ({Fuel:F3},{Fuel_Consume:F3}) | 水温:{Water_Temperature:F3} | \n" +
+                    //$"舱盖: [{string.Join(",", Blisters)}]\n" +
                     "";
 
             }
@@ -380,16 +352,16 @@ namespace WarthunderTelemetry
             {
                 return $"地面模式 | {Type.Replace(Type.Split("_")[0], "").Replace("_", " ").ToUpperInvariant()} | 坦克性能数据\n" +
                     $"---------损坏管制---------\n" +
-                    $"{(Driving_direction_mode ? "辅助驾驶已开启\n" : "")}" +
-                    $"{(Roll_indicators_is_available ? "横滚指示器已开启\n" : "")}" +
                     $"{(Breech_damaged ? "炮闩损坏\n" : "")}{(Barrel_dead ? "炮闩失效\n" : "")}" +
                     $"{(Engine_broken ? "引擎损坏\n" : "")}{(Engine_dead ? "引擎失效\n" : "")}" +
                     $"{(V_drive_broken ? "高低机损坏\n" : "")}{(H_drive_dead ? "方向机损坏\n" : "")}" +
                     $"{(Transmission_broken ? "变速器损坏\n" : "")}{(Track_broken ? "履带损坏\n" : "")}" +
-                    $"{(Is_repairing_auto ? $"正在自动维修,剩余{Repair_time}秒" : "")}{(Is_repairing ? $"正在维修,剩余{Repair_time}秒" : "")}" +
-                    $"{(Gunner_state == 2 ? $"炮手{Gunner_time_to_take_place}秒后替换完成" : $"{(Gunner_state == 1 ? "炮手无人替换" : "")}")}" +
+                    $"{(Is_repairing_auto ? $"正在自动维修,剩余{Repair_time}秒" : "")}{(Is_repairing ? $"正在维修,剩余{Repair_time}秒" : "")}\n" +
+                    $"{(Gunner_state == 2 ? $"炮手{Gunner_time_to_take_place}秒后替换完成" : $"{(Gunner_state == 1 ? "炮手无人替换" : "")}")}\n" +
                     $"{(Driver_state == 2 ? $"驾驶员{Driver_time_to_take_place}秒后替换完成" : $"{(Driver_state == 1 ? "驾驶员无人替换" : "")}")}\n" +
                     $"---------基础属性----------\n" +
+                    $"{(Driving_direction_mode ? "辅助驾驶已开启\n" : "")}" +
+                    $"{(Roll_indicators_is_available ? "横滚指示器已开启\n" : "")}" +
                     $"{(Gear - Gear_neutral == 0 ? " 空挡 " : $"{(Cruise_control > 0 ? $"自动驾驶[{Cruise_control}]级::" : "")}挡位[{Gear - Gear_neutral}]")} [速度: {Speed}{(Has_speed_warning ? "超过导弹射击速度" : "")}/转速: {Rpm}]\n" +
                     $"{(Stabilizer ? "稳定器已启动" : "稳定器未启动")} | " +
                     $"{(Lws == -1 ? "无激光指示器" : $"{(Lws == 2 ? "激光指示器已损坏" : $"{(Lws == 1 ? "!正在被激光照射!" : "激光指示器正待命")}")}")} | " +
@@ -404,5 +376,4 @@ namespace WarthunderTelemetry
             }
         }
     }
-
 }

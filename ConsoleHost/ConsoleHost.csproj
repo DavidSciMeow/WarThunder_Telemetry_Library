@@ -11,4 +11,10 @@
     <ProjectReference Include="..\WarthunderTelemetry\WarthunderTelemetry.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="a.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
