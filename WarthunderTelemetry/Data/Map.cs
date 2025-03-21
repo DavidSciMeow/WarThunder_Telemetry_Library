@@ -13,6 +13,18 @@ namespace WarthunderTelemetry.Data
         public static float[] GridSteps { get; private set; } = new float[2];
         public static float[] GridZero { get; private set; } = new float[2];
 
+        public static bool Drawplayer { get; set; } = true;
+        public static bool Drawfighter { get; set; } = true;
+        public static bool Drawbombing_point { get; set; } = true;
+        public static bool Drawdefending_point { get; set; } = false;
+        public static bool Drawrespawn_base_tank { get; set; } = false;
+        public static bool Drawrespawn_base_fighter { get; set; } = false;
+        public static bool Drawrespawn_base_bomber { get; set; } = false;
+        public static bool Drawcapture_zone { get; set; } = true;
+        public static bool Drawground_model { get; set; } = true;
+        public static bool Drawairfield { get; set; } = true;
+
+
         private static readonly SKPaint grayPaint = new SKPaint
         {
             Color = SKColors.Gray,
@@ -89,37 +101,79 @@ namespace WarthunderTelemetry.Data
 
             fillPaint.Color = color;
             strokePaint.Color = color;
+            var wid = 30;
+
+            switch (obj.Type.ToLower())
+            {
+                case "airfield":
+                    if (Drawairfield)
+                    {
+                        fillPaint.StrokeWidth = 10;
+                        canvas.DrawRect(obj.Sx * mapWidth, obj.Sy * mapHeight, obj.Ex * mapWidth - obj.Sx * mapWidth, obj.Ey * mapHeight - obj.Sy * mapHeight, fillPaint);
+                    }
+                    break;
+                case "ground_model":
+                    if (Drawground_model)
+                    {
+                        canvas.DrawCircle(x, y, 5, fillPaint);
+                    }
+                    break;
+            }
 
             switch (obj.Icon.ToLower())
             {
                 case "player":
-                    fillPaint.Color = SKColor.Parse("#FFD700");
-                    DrawTriangle(canvas, x, y, obj.Dx, obj.Dy, fillPaint);
+                    if (Drawplayer)
+                    {
+                        fillPaint.Color = SKColor.Parse("#FFD700");
+                        DrawAirUnit(canvas, x, y, obj.Dx, obj.Dy, fillPaint);
+                    }
                     break;
                 case "fighter":
-                    DrawTriangle(canvas, x, y, obj.Dx, obj.Dy, fillPaint);
+                    if (Drawfighter)
+                    {
+                        DrawAirUnit(canvas, x, y, obj.Dx, obj.Dy, fillPaint, true);
+                    }
                     break;
                 case "bombing_point":
+                    if (Drawbombing_point)
+                    {
+                        DrawBombingPoint(canvas, x, y, fillPaint, strokePaint);
+                    }
+                    break;
                 case "defending_point":
-                    DrawBombingPoint(canvas, x, y, fillPaint, strokePaint);
+                    if (Drawdefending_point)
+                    {
+                        DrawBombingPoint(canvas, x, y, fillPaint, strokePaint);
+                    }
                     break;
                 case "respawn_base_tank":
+                    if (Drawdefending_point)
+                    {
+                        canvas.DrawRoundRect(x - wid, y - wid, wid, wid, wid / 3, wid / 3, fillPaint);
+                    }
+                    break;
                 case "respawn_base_fighter":
+                    if (Drawrespawn_base_fighter)
+                    {
+                        canvas.DrawRoundRect(x - wid, y - wid, wid, wid, wid / 3, wid / 3, fillPaint);
+                    }
+                    break;
                 case "respawn_base_bomber":
+                    if (Drawrespawn_base_bomber)
+                    {
+                        canvas.DrawRoundRect(x - wid, y - wid, wid, wid, wid / 3, wid / 3, fillPaint);
+                    }
                     break;
                 case "capture_zone":
-                    var wid = 30;
-                    canvas.DrawRoundRect(x - wid, y - wid, wid, wid, wid/3, wid/3, fillPaint);
-                    break;
-                case "ground_model":
-                case "airfield":
-                default:
-                    canvas.DrawCircle(x, y, 10, fillPaint);
+                    if (Drawcapture_zone)
+                    {
+                        canvas.DrawRoundRect(x - wid, y - wid, wid, wid, wid / 3, wid / 3, fillPaint);
+                    }
                     break;
             }
         }
-
-        private static void DrawTriangle(SKCanvas canvas, float x, float y, float dx, float dy, SKPaint paint)
+        private static void DrawAirUnit(SKCanvas canvas, float x, float y, float dx, float dy, SKPaint paint, bool round = false)
         {
             float angle = (float)Math.Atan2(dy, dx);
             float cos = (float)Math.Cos(angle);
@@ -127,15 +181,20 @@ namespace WarthunderTelemetry.Data
 
             float triangleSize = 30; // 调整三角形大小
             float lineLength = 50; // 竖线长度
+            if (!round)
+            {
+                using var path = new SKPath();
+                path.MoveTo(x + triangleSize * cos, y + triangleSize * sin); // 顶点
+                path.LineTo(x - 7.5f * sin, y + 7.5f * cos); // 左下角
+                path.LineTo(x + 7.5f * sin, y - 7.5f * cos); // 右下角
+                path.Close();
 
-            using var path = new SKPath();
-            path.MoveTo(x + triangleSize * cos, y + triangleSize * sin); // 顶点
-            path.LineTo(x - 7.5f * sin, y + 7.5f * cos); // 左下角
-            path.LineTo(x + 7.5f * sin, y - 7.5f * cos); // 右下角
-            path.Close();
-
-            canvas.DrawPath(path, paint);
-
+                canvas.DrawPath(path, paint);
+            }
+            else
+            {
+                canvas.DrawCircle(x, y, 5, fillPaint);
+            }
             // 绘制短的竖线
             using var linePaint = new SKPaint
             {

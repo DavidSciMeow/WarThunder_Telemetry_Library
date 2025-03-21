@@ -1,9 +1,14 @@
 ﻿<Window x:Class="WarthunderTelemetry.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:UIHosts"
+        xmlns:data="clr-namespace:WarthunderTelemetry.Data;assembly=WarthunderTelemetry"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Image x:Name="mapImage" Stretch="Uniform" RenderTransformOrigin="0.5,0.5">
+        <Image x:Name="mapImage" Stretch="Uniform" RenderTransformOrigin="0.5, 0.5"
+               MouseLeftButtonDown="MapImage_MouseLeftButtonDown"
+               MouseMove="MapImage_MouseMove"
+               MouseLeftButtonUp="MapImage_MouseLeftButtonUp">
             <Image.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform x:Name="scaleTransform" />
@@ -14,5 +19,20 @@
         <Border Background="#80FFFFFF" CornerRadius="10" Padding="10" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top">
             <TextBlock x:Name="infoTextBlock" TextWrapping="Wrap" Foreground="Black" FontSize="14" />
         </Border>
+        <ToggleButton x:Name="MenuToggleButton" Content="Menu" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+        <Popup x:Name="MenuPopup" PlacementTarget="{Binding ElementName=MenuToggleButton}" IsOpen="{Binding IsChecked, ElementName=MenuToggleButton}" StaysOpen="False">
+            <StackPanel Background="White">
+                <CheckBox Content="Draw Player" IsChecked="{Binding Path=(data:Map.Drawplayer), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Fighter" IsChecked="{Binding Path=(data:Map.Drawfighter), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Bombing Point" IsChecked="{Binding Path=(data:Map.Drawbombing_point), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Defending Point" IsChecked="{Binding Path=(data:Map.Drawdefending_point), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Respawn Base Tank" IsChecked="{Binding Path=(data:Map.Drawrespawn_base_tank), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Respawn Base Fighter" IsChecked="{Binding Path=(data:Map.Drawrespawn_base_fighter), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Respawn Base Bomber" IsChecked="{Binding Path=(data:Map.Drawrespawn_base_bomber), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Capture Zone" IsChecked="{Binding Path=(data:Map.Drawcapture_zone), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Ground Model" IsChecked="{Binding Path=(data:Map.Drawground_model), Mode=TwoWay}"/>
+                <CheckBox Content="Draw Air Filed" IsChecked="{Binding Path=(data:Map.Drawairfield), Mode=TwoWay}"/>
+            </StackPanel>
+        </Popup>
     </Grid>
 </Window>

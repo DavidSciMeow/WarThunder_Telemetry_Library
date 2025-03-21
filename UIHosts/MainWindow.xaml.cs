@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using WarthunderTelemetry.Base;
 using WarthunderTelemetry.Data;
+using UIHosts;
 
 namespace WarthunderTelemetry
 {
@@ -20,12 +21,10 @@ namespace WarthunderTelemetry
         {
             InitializeComponent();
             mapImage.MouseWheel += MapImage_MouseWheel;
-            // mapImage.MouseLeftButtonDown += MapImage_MouseLeftButtonDown;
-            // mapImage.MouseMove += MapImage_MouseMove;
-            // mapImage.MouseLeftButtonUp += MapImage_MouseLeftButtonUp;
-
+            mapImage.MouseLeftButtonDown += MapImage_MouseLeftButtonDown;
+            mapImage.MouseMove += MapImage_MouseMove;
+            mapImage.MouseLeftButtonUp += MapImage_MouseLeftButtonUp;
             SetWindowSize();
-
             Task.Run(UpdateMapImage);
             Task.Run(UpdateInfoText);
         }
@@ -41,34 +40,31 @@ namespace WarthunderTelemetry
         private void MapImage_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             var scale = e.Delta > 0 ? 1.1 : 0.9;
-            var position = e.GetPosition(mapImage);
-            scaleTransform.CenterX = position.X;
-            scaleTransform.CenterY = position.Y;
             scaleTransform.ScaleX *= scale;
             scaleTransform.ScaleY *= scale;
         }
 
-        // private void MapImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        // {
-        //     mapImage.CaptureMouse();
-        //     start = e.GetPosition(this);
-        //     origin = new Point(translateTransform.X, translateTransform.Y);
-        // }
+        private void MapImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            mapImage.CaptureMouse();
+            start = e.GetPosition(this);
+            origin = new Point(translateTransform.X, translateTransform.Y);
+        }
 
-        // private void MapImage_MouseMove(object sender, MouseEventArgs e)
-        // {
-        //     if (mapImage.IsMouseCaptured)
-        //     {
-        //         var position = e.GetPosition(this);
-        //         translateTransform.X = origin.X + (position.X - start.X);
-        //         translateTransform.Y = origin.Y + (position.Y - start.Y);
-        //     }
-        // }
+        private void MapImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mapImage.IsMouseCaptured)
+            {
+                var position = e.GetPosition(this);
+                translateTransform.X = origin.X + (position.X - start.X);
+                translateTransform.Y = origin.Y + (position.Y - start.Y);
+            }
+        }
 
-        // private void MapImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        // {
-        //     mapImage.ReleaseMouseCapture();
-        // }
+        private void MapImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            mapImage.ReleaseMouseCapture();
+        }
 
         private async Task UpdateMapImage()
         {
@@ -112,7 +108,7 @@ namespace WarthunderTelemetry
                     });
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
@@ -120,7 +116,6 @@ namespace WarthunderTelemetry
             await Task.Delay(100);
             await UpdateMapImage();
         }
-
 
         private async Task UpdateInfoText()
         {
