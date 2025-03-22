@@ -9,13 +9,13 @@ namespace WarthunderTelemetry.Base
     public static class Get
     {
         public static string? _prevmapjson;
-        public static byte[] map = new byte[0];
+        public static byte[] map = Map.GenerateDefaultMapImage();
         public static async Task<IndicatorsInfo?> GetIndicatorsInfo() => new IndicatorsInfo(JObject.Parse(await BaseGet.GetIndicators()));
         public static async Task<byte[]?> GetMapImgAsync()
         {
             var _strmap = await BaseGet.GetMapInfo();
             var nowmap = JObject.Parse(_strmap);
-            if (nowmap["valid"]?.ToString().ToLowerInvariant().Equals("false") ?? false) return null;
+            if (nowmap["valid"]?.ToString().ToLowerInvariant().Equals("false") ?? false) return Map.GenerateDefaultMapImage();
             if (_prevmapjson != _strmap)
             {
                 _prevmapjson = _strmap;

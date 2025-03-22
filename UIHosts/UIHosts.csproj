@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
+		<PublishSingleFile>true</PublishSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\WarthunderTelemetry\WarthunderTelemetry.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\WarthunderTelemetry\WarthunderTelemetry.csproj" />
+	</ItemGroup>
 
 </Project>

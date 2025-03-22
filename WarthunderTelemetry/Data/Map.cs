@@ -44,6 +44,53 @@ namespace WarthunderTelemetry.Data
             StrokeWidth = 4
         };
 
+        public static byte[] GenerateDefaultMapImage()
+        {
+            using var bitmap = new SKBitmap(2000, 2000);
+            using var canvas = new SKCanvas(bitmap);
+            canvas.Clear(SKColors.White);
+
+            var text = "Not In Any Battle";
+
+            // 计算字体大小，使其占据大约40%的宽度
+            float targetWidth = bitmap.Width * 0.4f;
+            var font = new SKFont();
+            var paint = new SKPaint
+            {
+                Color = SKColors.Black,
+                IsAntialias = true
+            };
+
+            float textSize = 24;
+            font.Size = textSize;
+            float textWidth = font.MeasureText(text);
+            while (textWidth < targetWidth)
+            {
+                textSize += 1;
+                font.Size = textSize;
+                textWidth = font.MeasureText(text);
+            }
+
+            // 计算文本位置，使其居中
+            var x = (bitmap.Width - textWidth) / 2;
+            var y = (bitmap.Height + font.Size) / 2;
+
+            // 绘制阴影
+            var shadowPaint = new SKPaint
+            {
+                Color = SKColors.Gray,
+                IsAntialias = true
+            };
+            canvas.DrawText(text, x + 5, y + 5, SKTextAlign.Left, font, shadowPaint);
+
+            // 绘制文本
+            canvas.DrawText(text, x, y, SKTextAlign.Left, font, paint);
+
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            return data.ToArray();
+        }
+
         public static byte[] Initialize(JObject mapInfo, JArray mapObjects, byte[] mapData)
         {
             // 解析地图信息
@@ -109,7 +156,7 @@ namespace WarthunderTelemetry.Data
                     if (Drawairfield)
                     {
                         fillPaint.StrokeWidth = 10;
-                        canvas.DrawRect(obj.Sx * mapWidth, obj.Sy * mapHeight, obj.Ex * mapWidth - obj.Sx * mapWidth, obj.Ey * mapHeight - obj.Sy * mapHeight, fillPaint);
+                        canvas.DrawLine(obj.Sx * mapWidth, obj.Sy * mapHeight, obj.Ex * mapWidth, obj.Ey * mapHeight, fillPaint);
                     }
                     break;
                 case "ground_model":
