@@ -1,0 +1,57 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - main # 监听 main 分支的 push 事件
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置 .NET 环境
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0' # 根据你的项目调整 .NET 版本
+
+      # 恢复依赖项
+      - name: Restore dependencies
+        run: dotnet restore WarthunderTelemetry/WarthunderTelemetry.csproj
+
+      # 检查版本号是否更新
+      - name: Check for version change
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(dotnet msbuild WarthunderTelemetry/WarthunderTelemetry.csproj -nologo -t:GetVersion -p:TargetFramework=net7.0 | findstr /R /C:"^[0-9]\+\.[0-9]\+\.[0-9]\+")
+          echo "Current version: $CURRENT_VERSION"
+          PREVIOUS_VERSION=$(git show HEAD~1:WarthunderTelemetry/WarthunderTelemetry.csproj | findstr /R /C:"<Version>.*</Version>" | sed -E 's/<Version>(.*)<\/Version>/\1/')
+          echo "Previous version: $PREVIOUS_VERSION"
+          if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
+            echo "Version has not changed. Skipping publish."
+            echo "publish=false" >> $GITHUB_ENV
+          else
+            echo "Version has changed. Proceeding to publish."
+            echo "publish=true" >> $GITHUB_ENV
+
+      # 打包项目
+      - name: Pack the project
+        if: env.publish == 'true'
+        run: dotnet pack WarthunderTelemetry/WarthunderTelemetry.csproj --configuration Release --output ./artifacts
+
+      # 发布到 GitHub Packages
+      - name: Publish to GitHub Packages
+        if: env.publish == 'true'
+        run: dotnet nuget push ./artifacts/*.nupkg --source "github" --api-key ${{ secrets.GIT_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+      # 发布到 NuGet
+      - name: Publish to NuGet
+        if: env.publish == 'true'
+        run: dotnet nuget push ./artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
