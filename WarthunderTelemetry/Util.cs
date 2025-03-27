@@ -3,8 +3,18 @@ using System.Linq;
 
 namespace WarthunderTelemetry
 {
+    /// <summary>
+    /// 工具组
+    /// </summary>
     public static class Util
     {
+        /// <summary>
+        /// 从JObject中提取动态数组
+        /// </summary>
+        /// <typeparam name="Type">数组类型</typeparam>
+        /// <param name="data">数据</param>
+        /// <param name="prefix">前缀标</param>
+        /// <returns></returns>
         public static Type[] ExtractDynamicArray<Type>(this JObject data, string prefix) where Type : struct
         {
             int maxIndex = data.Properties()
@@ -23,5 +33,4 @@ namespace WarthunderTelemetry
             return result;
         }
     }
-
 }

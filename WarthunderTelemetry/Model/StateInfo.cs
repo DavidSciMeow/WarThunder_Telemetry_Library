@@ -2,8 +2,15 @@
 
 namespace WarthunderTelemetry.Model
 {
+    /// <summary>
+    /// 飞行载具状态指标
+    /// </summary>
     public struct StateInfo
     {
+        /// <summary>
+        /// 初始化飞行载具状态指标
+        /// </summary>
+        /// <param name="jo">相关的JObject</param>
         public StateInfo(JObject jo)
         {
             Valid = jo["valid"]?.ToString() == "true";
@@ -40,39 +47,135 @@ namespace WarthunderTelemetry.Model
             Efficiency2 = jo["efficiency 2, %"]?.ToObject<int>() ?? 0;
         }
 
+        /// <summary>
+        /// 是否有效
+        /// </summary>
         public bool Valid { get; set; }
+        /// <summary>
+        /// 副翼, %
+        /// </summary>
         public int Aileron { get; set; }
+        /// <summary>
+        /// 升降舵, %
+        /// </summary>
         public int Elevator { get; set; }
+        /// <summary>
+        /// 方向舵, %
+        /// </summary>
         public int Rudder { get; set; }
+        /// <summary>
+        /// 襟翼, %
+        /// </summary>
         public int Flaps { get; set; }
+        /// <summary>
+        /// 起落架, %
+        /// </summary>
         public int Gear { get; set; }
+        /// <summary>
+        /// 减速板, %
+        /// </summary>
         public int Airbrake { get; set; }
+        /// <summary>
+        /// 高度, m
+        /// </summary>
         public int Hm { get; set; }
+        /// <summary>
+        /// 真空速, km/h
+        /// </summary>
         public int TASkmh { get; set; }
+        /// <summary>
+        /// 指示速度, km/h
+        /// </summary>
         public int IASkmh { get; set; }
+        /// <summary>
+        /// 马赫数
+        /// </summary>
         public float M { get; set; }
+        /// <summary>
+        /// 攻角, deg
+        /// </summary>
         public float AoAdeg { get; set; }
+        /// <summary>
+        /// 侧滑角, deg
+        /// </summary>
         public float AoSdeg { get; set; }
+        /// <summary>
+        /// 垂直G力 (G倍)
+        /// </summary>
         public float Ny { get; set; }
+        /// <summary>
+        /// 垂直速率, m/s
+        /// </summary>
         public float Vyms { get; set; }
+        /// <summary>
+        /// 切向弧度, deg/s
+        /// </summary>
         public int Wxdegs { get; set; }
+        /// <summary>
+        /// 油量, kg
+        /// </summary>
         public int Mfuelkg { get; set; }
+        /// <summary>
+        /// 油量0, kg
+        /// </summary>
         public int Mfuel0kg { get; set; }
+        /// <summary>
+        /// 油门1, %
+        /// </summary>
         public int Throttle1 { get; set; }
+        /// <summary>
+        /// 功率1, hp
+        /// </summary>
         public float Power1hp { get; set; }
+        /// <summary>
+        /// 引擎转速1, rpm
+        /// </summary>
         public int RPM1 { get; set; }
+        /// <summary>
+        /// 进气压力1, atm
+        /// </summary>
         public float Manifoldpressure1atm { get; set; }
+        /// <summary>
+        /// 油温1, C
+        /// </summary>
         public int Oiltemp1C { get; set; }
+        /// <summary>
+        /// 推力1, kgs
+        /// </summary>
         public int Thrust1kgs { get; set; }
+        /// <summary>
+        /// 燃油效率1, %
+        /// </summary>
         public int Efficiency1 { get; set; }
+        /// <summary>
+        /// 油门2, %
+        /// </summary>
         public int Throttle2 { get; set; }
+        /// <summary>
+        /// 功率2, hp
+        /// </summary>
         public float Power2hp { get; set; }
+        /// <summary>
+        /// 引擎转速2, rpm
+        /// </summary>
         public int RPM2 { get; set; }
+        /// <summary>
+        /// 进气压力2, atm
+        /// </summary>
         public float Manifoldpressure2atm { get; set; }
+        /// <summary>
+        /// 油温2, C
+        /// </summary>
         public int Oiltemp2C { get; set; }
+        /// <summary>
+        /// 推力2, kgs
+        /// </summary>
         public int Thrust2kgs { get; set; }
+        /// <summary>
+        /// 燃油效率2, %
+        /// </summary>
         public int Efficiency2 { get; set; }
-
+        /// <inheritdoc/>
         public override readonly string ToString() => $"\n" +
             $"IAS:{TASkmh:F2} km/h ({M:F2}Mach)\n" +
             $"攻角:{AoAdeg:F2}°\n" +

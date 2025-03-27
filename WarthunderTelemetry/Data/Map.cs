@@ -6,22 +6,67 @@ using WarthunderTelemetry.Model;
 
 namespace WarthunderTelemetry.Data
 {
+    /// <summary>
+    /// 地图信息类
+    /// </summary>
     public static class Map
     {
+        /// <summary>
+        /// 当前地图对象信息
+        /// </summary>
         public static List<MapObjInfo> MapObjInfos { get; } = new List<MapObjInfo>();
+        /// <summary>
+        /// 地图大小
+        /// </summary>
         public static float[] GridSize { get; private set; } = new float[2];
+        /// <summary>
+        /// 网格步长
+        /// </summary>
         public static float[] GridSteps { get; private set; } = new float[2];
+        /// <summary>
+        /// 零点位置
+        /// </summary>
         public static float[] GridZero { get; private set; } = new float[2];
 
+        /// <summary>
+        /// 地图调试信息:是否绘制玩家
+        /// </summary>
         public static bool Drawplayer { get; set; } = true;
+        /// <summary>
+        /// 地图调试信息:是否绘制战斗机
+        /// </summary>
         public static bool Drawfighter { get; set; } = true;
+        /// <summary>
+        /// 地图调试信息:是否绘制轰炸点
+        /// </summary>
         public static bool Drawbombing_point { get; set; } = true;
+        /// <summary>
+        /// 地图调试信息:是否绘制防守点
+        /// </summary>
         public static bool Drawdefending_point { get; set; } = false;
+        /// <summary>
+        /// 地图调试信息:是否绘制重生点(坦克)
+        /// </summary>
         public static bool Drawrespawn_base_tank { get; set; } = false;
+        /// <summary>
+        /// 地图调试信息:是否绘制重生点(战斗机)
+        /// </summary>
         public static bool Drawrespawn_base_fighter { get; set; } = false;
+        /// <summary>
+        /// 地图调试信息:是否绘制重生点(轰炸机)
+        /// </summary>
         public static bool Drawrespawn_base_bomber { get; set; } = false;
+        /// <summary>
+        /// 地图调试信息:是否绘制占领区
+        /// </summary>
         public static bool Drawcapture_zone { get; set; } = true;
+        /// <summary>
+        /// 地图调试信息:是否绘制地面模型
+        /// </summary>
         public static bool Drawground_model { get; set; } = true;
+        /// <summary>
+        /// 地图调试信息:是否绘制机场
+        /// </summary>
         public static bool Drawairfield { get; set; } = true;
 
 
@@ -44,6 +89,26 @@ namespace WarthunderTelemetry.Data
             StrokeWidth = 4
         };
 
+        /// <summary>
+        /// 获取地图信息
+        /// </summary>
+        /// <returns></returns>
+        public static string GetMapInfo()
+        {
+            string ss = $"" +
+                $"-----------\nMapInfo\n-----------\n" +
+                $"G_Size:{GridSize[0]}:{GridSize[1]}\n" +
+                $"G_Step:{GridSteps[0]}:{GridSteps[1]}\n" +
+                $"G_Zero:{GridZero[0]}:{GridZero[1]}\n" +
+                $"-----------\nMapObject\n-----------\n";
+            foreach (var i in MapObjInfos) ss += $"{i}\n";
+            ss += "-----------\n";
+            return ss;
+        }
+        /// <summary>
+        /// 生成地图图片
+        /// </summary>
+        /// <returns></returns>
         public static byte[] GenerateDefaultMapImage()
         {
             using var bitmap = new SKBitmap(2000, 2000);
@@ -90,7 +155,13 @@ namespace WarthunderTelemetry.Data
             using var data = image.Encode(SKEncodedImageFormat.Png, 100);
             return data.ToArray();
         }
-
+        /// <summary>
+        /// 初始化地图
+        /// </summary>
+        /// <param name="mapInfo">要传递的MapInfo参量</param>
+        /// <param name="mapObjects">要传递的mapObjects参量</param>
+        /// <param name="mapData">要传递的mapData参量</param>
+        /// <returns></returns>
         public static byte[] Initialize(JObject mapInfo, JArray mapObjects, byte[] mapData)
         {
             // 解析地图信息
@@ -251,20 +322,8 @@ namespace WarthunderTelemetry.Data
             };
             canvas.DrawLine(x, y, x + lineLength * cos, y + lineLength * sin, linePaint);
         }
-
         private static void DrawBombingPoint(SKCanvas canvas, float x, float y, SKPaint fillPaint, SKPaint strokePaint) => canvas.DrawCircle(x, y, 14, strokePaint);
 
-        public static string GetMapInfo()
-        {
-            string ss = $"" +
-                $"-----------\nMapInfo\n-----------\n" +
-                $"G_Size:{GridSize[0]}:{GridSize[1]}\n" +
-                $"G_Step:{GridSteps[0]}:{GridSteps[1]}\n" +
-                $"G_Zero:{GridZero[0]}:{GridZero[1]}\n" +
-                $"-----------\nMapObject\n-----------\n";
-            foreach (var i in MapObjInfos) ss += $"{i}\n";
-            ss += "-----------\n";
-            return ss;
-        }
+
     }
 }

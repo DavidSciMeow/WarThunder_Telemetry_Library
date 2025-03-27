@@ -5,13 +5,81 @@ using System.Xml.Schema;
 
 namespace WarthunderTelemetry.Model
 {
-    public class IndicatorsInfo
+    /// <summary>
+    /// 载具详细指标
+    /// </summary>
+    public struct IndicatorsInfo
     {
+        /// <summary>
+        /// 初始化载具详细指标
+        /// </summary>
+        /// <param name="jo">对应的JsonObject</param>
         public IndicatorsInfo(JObject jo)
         {
             Valid = jo[nameof(Valid).ToLowerInvariant()]?.ToString() == "true";
             Army = jo[nameof(Army).ToLowerInvariant()]?.ToString() ?? "";
             Type = jo[nameof(Type).ToLowerInvariant()]?.ToString() ?? "";
+
+            Is_repairing_auto = default;
+            Transmission_broken = default;
+            Is_repairing = default;
+            Breech_damaged = default;
+            Barrel_dead = default;
+            Engine_broken = default;
+            Engine_dead = default;
+            V_drive_broken = default;
+            H_drive_dead = default;
+            Repair_time = default;
+            Gunner_time_to_take_place = default;
+            Driver_time_to_take_place = default;
+            Burns = default;
+            Track_broken = default;
+            Stabilizer = default;
+            Gear = default;
+            Gear_neutral = default;
+            Speed = default;
+            Has_speed_warning = default;
+            Rpm = default;
+            Driving_direction_mode = default;
+            Cruise_control = default;
+            Lws = default;
+            Ircm = default;
+            Roll_indicators_is_available = default;
+            First_stage_ammo = default;
+            Crew_total = default;
+            Crew_current = default;
+            Crew_distance = default;
+            Gunner_state = default;
+            Driver_state = default;
+            Stick_Elevator = default;
+            Stick_Ailerons = default;
+            Vario = default;
+            AltitudeHour = default;
+            AltitudeMin = default;
+            Altitude10k = default;
+            Aviahorizon_Roll = default;
+            Aviahorizon_Pitch = default;
+            Compass = default;
+            Clock_Hour = default;
+            Clock_Min = default;
+            Clock_Sec = default;
+            Rpm_Min = default;
+            Rpm_Hour = default;
+            Oil_Pressure = default;
+            Water_Temperature = default;
+            Fuel = default;
+            Fuel_Consume = default;
+            Airbrake_Lever = default;
+            Gears = default;
+            Flaps = default;
+            Throttle = default;
+            Mach = default;
+            G_Meter = default;
+            Aoa = default;
+            Pedals = default;
+            Blisters = default;
+            GearLamps = default;
+
             if (Army == "air")
             {
                 Speed = jo[nameof(Speed).ToLowerInvariant()]?.Value<float>() ?? 0.0f;
@@ -76,6 +144,7 @@ namespace WarthunderTelemetry.Model
                 Driver_state = int.Parse(jo[nameof(Driver_state).ToLowerInvariant()]?.ToString() ?? "0");
             }
         }
+
         /// <summary>
         /// 是否有效
         /// </summary>
@@ -326,6 +395,7 @@ namespace WarthunderTelemetry.Model
         /// </summary>
         public int[]? GearLamps { get; private set; }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (Army.ToLowerInvariant() == "air")

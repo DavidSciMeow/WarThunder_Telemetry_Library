@@ -6,11 +6,23 @@ using WarthunderTelemetry.Model;
 
 namespace WarthunderTelemetry.Base
 {
+    /// <summary>
+    /// Get请求库
+    /// </summary>
     public static class Get
     {
-        public static string? _prevmapjson;
-        public static byte[] map = Map.GenerateDefaultMapImage();
+        private static string? _prevmapjson;
+        private static byte[] map = Map.GenerateDefaultMapImage();
+        /// <summary>
+        /// 获取Indicators资源任务(非阻塞态)
+        /// </summary>
+        /// <returns></returns>
         public static async Task<IndicatorsInfo?> GetIndicatorsInfo() => new IndicatorsInfo(JObject.Parse(await BaseGet.GetIndicators()));
+        /// <summary>
+        /// 获取MapImg资源任务(非阻塞态)<br/>
+        /// 优化模式缓存*
+        /// </summary>
+        /// <returns></returns>
         public static async Task<byte[]?> GetMapImgAsync()
         {
             var _strmap = await BaseGet.GetMapInfo();
@@ -23,7 +35,10 @@ namespace WarthunderTelemetry.Base
             }
             return Map.Initialize(nowmap, JArray.Parse(await BaseGet.GetMapObjInfo()), map);
         }
-
+        /// <summary>
+        /// 获取State资源任务(非阻塞态)
+        /// </summary>
+        /// <returns></returns>
         public static async Task<StateInfo?> GetStateInfo() => new StateInfo(JObject.Parse(await BaseGet.GetState()));
     }
 

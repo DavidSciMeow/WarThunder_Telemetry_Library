@@ -2,8 +2,15 @@
 
 namespace WarthunderTelemetry.Model
 {
-    public class MapObjInfo
+    /// <summary>
+    /// 地图对象信息
+    /// </summary>
+    public struct MapObjInfo
     {
+        /// <summary>
+        /// 初始化地图对象信息
+        /// </summary>
+        /// <param name="i">相关的JToken</param>
         public MapObjInfo(JToken i)
         {
             Type = i[nameof(Type).ToLowerInvariant()]?.ToString() ?? "";
@@ -20,21 +27,60 @@ namespace WarthunderTelemetry.Model
             Dx = i[nameof(Dx).ToLowerInvariant()]?.ToObject<float>() ?? 0;
             Dy = i[nameof(Dy).ToLowerInvariant()]?.ToObject<float>() ?? 0;
         }
+        /// <summary>
+        /// 类型
+        /// </summary>
         public string Type { get; set; }
+        /// <summary>
+        /// 颜色(#XXXXXX)
+        /// </summary>
         public string Color { get; set; }
+        /// <summary>
+        /// 是否闪烁
+        /// </summary>
         public bool Blink { get; set; }
+        /// <summary>
+        /// 图标类型
+        /// </summary>
         public string Icon { get; set; }
+        /// <summary>
+        /// 图标背景
+        /// </summary>
         public string Icon_bg { get; set; }
+        /// <summary>
+        /// Start X (启始坐标轴X)
+        /// </summary>
         public float Sx { get; set; }
+        /// <summary>
+        /// Start Y (启始坐标轴Y)
+        /// </summary>
         public float Sy { get; set; }
+        /// <summary>
+        /// End X (结束坐标轴X)
+        /// </summary>
         public float Ex { get; set; }
+        /// <summary>
+        /// End Y (结束坐标轴Y)
+        /// </summary>
         public float Ey { get; set; }
+        /// <summary>
+        /// 当前X轴
+        /// </summary>
         public float X { get; set; }
+        /// <summary>
+        /// 当前Y轴
+        /// </summary>
         public float Y { get; set; }
+        /// <summary>
+        /// Delta X (X轴变化量)
+        /// </summary>
         public float Dx { get; set; }
+        /// <summary>
+        /// Delta Y (Y轴变化量)
+        /// </summary>
         public float Dy { get; set; }
-
-        public override string ToString() => $"[{Type}] {X}:{Y} **({Sx}:{Dx}/{Sy}:{Dy})";
+        /// <inheritdoc/>
+        public override readonly string ToString() => $"[{Type}] {X}:{Y} **({Sx}:{Dx}/{Sy}:{Dy})";
     }
 
 }
