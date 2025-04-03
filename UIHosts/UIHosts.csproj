@@ -9,6 +9,7 @@
 		<SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
 		<PublishSingleFile>true</PublishSingleFile>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<CETCompat>false</CETCompat>
 	</PropertyGroup>
 
 	<ItemGroup>
