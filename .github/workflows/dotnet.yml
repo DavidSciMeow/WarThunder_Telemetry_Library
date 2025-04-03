@@ -24,21 +24,6 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore WarthunderTelemetry/WarthunderTelemetry.csproj
 
-      # 检查版本号是否更新
-      - name: Check for version change
-        id: version_check
-        run: |
-          CURRENT_VERSION=$(dotnet msbuild WarthunderTelemetry/WarthunderTelemetry.csproj -nologo -t:GetVersion -p:TargetFramework=net7.0 | findstr /R /C:"^[0-9]\+\.[0-9]\+\.[0-9]\+")
-          echo "Current version: $CURRENT_VERSION"
-          PREVIOUS_VERSION=$(git show HEAD~1:WarthunderTelemetry/WarthunderTelemetry.csproj | findstr /R /C:"<Version>.*</Version>" | sed -E 's/<Version>(.*)<\/Version>/\1/')
-          echo "Previous version: $PREVIOUS_VERSION"
-          if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
-            echo "Version has not changed. Skipping publish."
-            echo "publish=false" >> $GITHUB_ENV
-          else
-            echo "Version has changed. Proceeding to publish."
-            echo "publish=true" >> $GITHUB_ENV
-
       # 打包项目
       - name: Pack the project
         if: env.publish == 'true'
