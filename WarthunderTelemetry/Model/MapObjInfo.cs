@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 namespace WarthunderTelemetry.Model
 {
@@ -82,5 +83,4 @@ namespace WarthunderTelemetry.Model
         /// <inheritdoc/>
         public override readonly string ToString() => $"[{Type}] {X}:{Y} **({Sx}:{Dx}/{Sy}:{Dy})";
     }
-
 }

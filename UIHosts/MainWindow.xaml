@@ -8,13 +8,23 @@
         <Image x:Name="mapImage" Stretch="Uniform" RenderTransformOrigin="0.5, 0.5"
                MouseLeftButtonDown="MapImage_MouseLeftButtonDown"
                MouseMove="MapImage_MouseMove"
-               MouseLeftButtonUp="MapImage_MouseLeftButtonUp">
+               MouseLeftButtonUp="MapImage_MouseLeftButtonUp"
+               skia:SKElement.PaintSurface="MapImage_PaintSurface">
             <Image.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform x:Name="scaleTransform" />
                     <TranslateTransform x:Name="translateTransform" />
                 </TransformGroup>
             </Image.RenderTransform>
+            <Image.ContextMenu>
+                <ContextMenu>
+                    <!-- MenuItem Header="MD BTP" Click="StartMeasuringBetweenPoints_Click"/>
+                    <MenuItem Header="MD Player" Click="StartMeasuringToPlayer_Click"/ -->
+                    <Separator/>
+                    <MenuItem Header="Add Pin" Click="AddPin_Click"/>
+                    <MenuItem Header="Remove Pin" Click="RemovePin_Click"/>
+                </ContextMenu>
+            </Image.ContextMenu>
         </Image>
         <Border Background="#80FFFFFF" CornerRadius="10" Padding="10" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top">
             <TextBlock x:Name="infoTextBlock" TextWrapping="Wrap" Foreground="Black" FontSize="14" />

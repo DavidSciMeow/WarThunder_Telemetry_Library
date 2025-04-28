@@ -4,11 +4,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using UIHosts;
+using SkiaSharp.Views.WPF;
 using WarthunderTelemetry.Base;
 using WarthunderTelemetry.Data;
-using UIHosts;
+using SkiaSharp.Views.Desktop;
 
 namespace WarthunderTelemetry
 {
@@ -16,6 +21,46 @@ namespace WarthunderTelemetry
     {
         private Point origin;
         private Point start;
+        private Point lastMousePosition;
+
+        private void MapImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // 获取鼠标点击位置
+            Point mousePosition = e.GetPosition(mapImage);
+
+            // 将屏幕坐标转换为逻辑坐标
+            float logicalX = (float)((mousePosition.X - translateTransform.X) / scaleTransform.ScaleX * Map.GridSize[0] / Map.GridSteps[0] + Map.GridZero[0]);
+            float logicalY = (float)((mousePosition.Y - translateTransform.Y) / scaleTransform.ScaleY * Map.GridSize[1] / Map.GridSteps[1] + Map.GridZero[1]);
+
+            // 添加图钉
+            Map.AddPin(logicalX, logicalY);
+
+            // 重新绘制地图
+            mapImage.InvalidateVisual();
+        }
+
+        private void RemovePin_Click(object sender, RoutedEventArgs e)
+        {
+            // 移除最近的图钉
+            Map.RemoveLastPin();
+
+            // 重新绘制地图
+            mapImage.InvalidateVisual();
+        }
+
+        private void MapImage_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            var canvas = e.Surface.Canvas;
+            canvas.Clear(SKColors.White);
+
+            // 绘制地图背景（省略具体实现）
+            mapImage.CaptureMouse();
+            start = e.GetPosition(this);
+            origin = new Point(translateTransform.X, translateTransform.Y);
+
+            // 绘制图钉
+            Map.DrawPins(canvas, scaleTransform.ScaleX, translateTransform.X, translateTransform.Y);
+        }
 
         public MainWindow()
         {
@@ -42,13 +87,6 @@ namespace WarthunderTelemetry
             var scale = e.Delta > 0 ? 1.1 : 0.9;
             scaleTransform.ScaleX *= scale;
             scaleTransform.ScaleY *= scale;
-        }
-
-        private void MapImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            mapImage.CaptureMouse();
-            start = e.GetPosition(this);
-            origin = new Point(translateTransform.X, translateTransform.Y);
         }
 
         private void MapImage_MouseMove(object sender, MouseEventArgs e)

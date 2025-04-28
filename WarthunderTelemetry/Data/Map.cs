@@ -2,6 +2,8 @@
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using WarthunderTelemetry.Model;
 
 namespace WarthunderTelemetry.Data
@@ -27,7 +29,10 @@ namespace WarthunderTelemetry.Data
         /// 零点位置
         /// </summary>
         public static float[] GridZero { get; private set; } = new float[2];
-
+        /// <summary>
+        /// 玩家位置
+        /// </summary>
+        public static MapObjInfo? PlayerPosition => MapObjInfos.FirstOrDefault(obj => obj.Icon == "player");
         /// <summary>
         /// 地图调试信息:是否绘制玩家
         /// </summary>
@@ -88,6 +93,77 @@ namespace WarthunderTelemetry.Data
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 4
         };
+
+        // 图钉列表
+        private static readonly List<MapObjInfo> Pins = new List<MapObjInfo>();
+
+        /// <summary>
+        /// 添加图钉
+        /// </summary>
+        /// <param name="logicalX">逻辑 X 坐标</param>
+        /// <param name="logicalY">逻辑 Y 坐标</param>
+        public static void AddPin(float logicalX, float logicalY)
+        {
+            Pins.Add(new MapObjInfo
+            {
+                X = logicalX,
+                Y = logicalY,
+                Icon = "pin", // 自定义图钉类型
+                Color = "#FF0000" // 红色图钉
+            });
+        }
+
+        /// <summary>
+        /// 移除最近的图钉
+        /// </summary>
+        public static void RemoveLastPin()
+        {
+            if (Pins.Count > 0)
+            {
+                Pins.RemoveAt(Pins.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// 绘制图钉
+        /// </summary>
+        /// <param name="canvas">SkiaSharp 画布</param>
+        /// <param name="scale">当前缩放比例</param>
+        /// <param name="translateX">当前 X 轴平移量</param>
+        /// <param name="translateY">当前 Y 轴平移量</param>
+        public static void DrawPins(SKCanvas canvas, double scale, double translateX, double translateY)
+        {
+            foreach (var pin in Pins)
+            {
+                // 将逻辑坐标转换为屏幕坐标
+                var screenPosition = LogicalToScreen(pin.X, pin.Y, scale, translateX, translateY);
+
+                // 绘制图钉
+                using var paint = new SKPaint
+                {
+                    Color = SKColor.Parse(pin.Color),
+                    IsAntialias = true,
+                    Style = SKPaintStyle.Fill
+                };
+                canvas.DrawCircle((float)screenPosition.X, (float)screenPosition.Y, 10, paint);
+            }
+        }
+        /// <summary>
+        /// 将逻辑坐标转换为屏幕坐标
+        /// </summary>
+        /// <param name="logicalX">逻辑 X 坐标</param>
+        /// <param name="logicalY">逻辑 Y 坐标</param>
+        /// <param name="scale">当前缩放比例</param>
+        /// <param name="translateX">当前 X 轴平移量</param>
+        /// <param name="translateY">当前 Y 轴平移量</param>
+        /// <returns>屏幕坐标</returns>
+        public static Point LogicalToScreen(float logicalX, float logicalY, double scale, double translateX, double translateY)
+        {
+            // 根据网格信息计算屏幕坐标
+            double screenX = (logicalX - GridZero[0]) * (GridSteps[0] / GridSize[0]) * scale + translateX;
+            double screenY = (logicalY - GridZero[1]) * (GridSteps[1] / GridSize[1]) * scale + translateY;
+            return new Point((int)Math.Round(screenX), (int)Math.Round(screenY));
+        }
 
         /// <summary>
         /// 获取地图信息
@@ -324,6 +400,34 @@ namespace WarthunderTelemetry.Data
         }
         private static void DrawBombingPoint(SKCanvas canvas, float x, float y, SKPaint fillPaint, SKPaint strokePaint) => canvas.DrawCircle(x, y, 14, strokePaint);
 
+        /// <summary>
+        /// 将地图坐标转换为游戏距离
+        /// </summary>
+        /// <param name="mapX">地图上的 X 坐标</param>
+        /// <param name="mapY">地图上的 Y 坐标</param>
+        /// <returns>游戏中的实际坐标</returns>
+        public static (float gameX, float gameY) ConvertToGameDistance(float mapX, float mapY)
+        {
+            float gameX = (mapX - GridZero[0]) * (GridSize[0] / GridSteps[0]);
+            float gameY = (mapY - GridZero[1]) * (GridSize[1] / GridSteps[1]);
+            return (gameX, gameY);
+        }
+
+        /// <summary>
+        /// 计算两点之间的游戏距离
+        /// </summary>
+        /// <param name="mapX1">第一个点的地图 X 坐标</param>
+        /// <param name="mapY1">第一个点的地图 Y 坐标</param>
+        /// <param name="mapX2">第二个点的地图 X 坐标</param>
+        /// <param name="mapY2">第二个点的地图 Y 坐标</param>
+        /// <returns>两点之间的游戏距离</returns>
+        public static double CalculateGameDistance(float mapX1, float mapY1, float mapX2, float mapY2)
+        {
+            var (gameX1, gameY1) = ConvertToGameDistance(mapX1, mapY1);
+            var (gameX2, gameY2) = ConvertToGameDistance(mapX2, mapY2);
+
+            return Math.Sqrt(Math.Pow(gameX2 - gameX1, 2) + Math.Pow(gameY2 - gameY1, 2));
+        }
 
     }
 }

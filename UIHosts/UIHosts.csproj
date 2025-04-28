@@ -13,6 +13,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="SkiaSharp.Views.WPF" Version="3.116.1" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\WarthunderTelemetry\WarthunderTelemetry.csproj" />
 	</ItemGroup>
 
